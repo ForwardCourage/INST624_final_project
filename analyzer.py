@@ -70,3 +70,8 @@ class Analyzer:
                 tokens.append(tok)
 
         return tokens
+
+    def frequencies(self, sentences: List[str]) -> Counter:
+        tokens = self._tokenize(sentences)
+        return Counter(tokens)
+
