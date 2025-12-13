@@ -1,11 +1,16 @@
 import requests
 import json
 
-api_url = 'https://cat-fact.herokuapp.com/facts/random'
-api_response = requests.get(api_url)
-api_response.content
-api_data = json.loads(api_response.content)
-type(api_data)
-len(api_data)
-api_data[2]
-api_data[0]
+api_url = 'https://meowfacts.herokuapp.com/'
+api_resp = requests.get(api_url)
+api_content = json.loads(api_resp.content)
+
+class MeowApiCaller:
+
+    def __init__(self, num) -> None:
+        self.facts = []
+        self.num = num
+
+    def get_facts(self):
+        for i in range(self.num):
+            pass
