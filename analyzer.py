@@ -3,7 +3,7 @@ from wordcloud import STOPWORDS, WordCloud
 import re
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Set
+from typing import Set, List
 
 
 @dataclass
@@ -27,10 +27,12 @@ class Analyzer:
     extra_stopwords: Set[str] = field(default_factory=set) # User-defined stopwords (domain-specific high-frequency but meaningless words)
 
     _stopwords: Set[str] = field(init=False, repr=False) # Final stopwords set actually used during token filtering
+    _token_re: re.Pattern = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         extra = {w.lower() for w in self._stopwords} if self.lowercase else set(self.extra_stopwords)
         self._stopwords = set(STOPWORDS) | extra
+        self._token_re = re.compile(r"[a-z]+(?:-[a-z]+)*") # regular expression pattern that would filter out unnecessary symbols
 
     def _normalize_text(self, sentence: str) -> str:
         # if self.lowercase == True, merge uppercase/lowercase by converting the entire sentence to lowercase.
@@ -46,3 +48,25 @@ class Analyzer:
         sentence = re.sub(r"\s+", " ", sentence).strip()
 
         return sentence
+
+    
+    def _tokenize(self, sentences: List[str]) -> List[str]:
+        tokens: List[str] = []
+
+        for s in sentences:
+            # Normalize each sentence first (case + dash handling + whitespace)
+            s = self._normalize_text(s)
+
+            # Extract tokens that match the regex (keeps hyphenated words)
+            for tok in self._token_re.findall(s):
+                # Filter short tokens
+                if len(tok) < self.min_word_length:
+                    continue
+
+                # Filter stopwords (built-in + your custom ones)
+                if tok in self._stopwords:
+                    continue
+
+                tokens.append(tok)
+
+        return tokens
