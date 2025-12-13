@@ -75,3 +75,30 @@ class Analyzer:
         tokens = self._tokenize(sentences)
         return Counter(tokens)
 
+if __name__ == '__main__':
+    sentences = [
+        "My Long-haired cat -- sleeps on the sofa.",
+        "Cats chase laser pointers — and then nap.",
+        "A short-haired cat–often sleeps, eats, and plays."
+    ]
+
+    gen = Analyzer(extra_stopwords={"cat", "cats"})
+
+    # 1) Test normalization
+    print("=== Normalize ===")
+    for s in sentences:
+        print("Original :", s)
+        print("Normalized:", gen._normalize_text(s))
+        print()
+
+    # 2) Test tokenization
+    print("=== Tokenize ===")
+    tokens = gen._tokenize(sentences)
+    print(tokens)
+    print()
+
+    # 3) Test frequencies
+    print("=== Frequencies ===")
+    freq = gen.frequencies(sentences)
+    print(freq)
+    print("Most common:", freq.most_common(10))
