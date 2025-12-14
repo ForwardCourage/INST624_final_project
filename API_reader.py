@@ -1,6 +1,6 @@
 import requests
 import json
-
+import random
 api_url = 'https://meowfacts.herokuapp.com/' # Meowfacts API url
 
 class MeowApiCaller:
@@ -32,16 +32,14 @@ class MeowApiCaller:
         self.facts = content['data']
         self.updateLen()
     
-    def printFacts(self, num):
+    def printFacts(self, num: int) -> None:
         """
-        This method prints out the facts stored in the API caller.
-
-        If the parameter exceeds the length of the facts list of the caller,
-        then all facts stored will be printed out.
+        Print a random subset of stored facts (no duplicates within one call).
+        If num exceeds available facts, prints all facts in random order.
         """
-        for i in range(min(num, self.returnLen())):
-            print(self.facts[i])
-
+        k = min(num, self.returnLen())
+        for fact in random.sample(self.facts, k):
+            print(fact)
 
     def returnFacts(self):
         return self.facts
@@ -55,6 +53,8 @@ class MeowApiCaller:
         """
         self.facts = []
         self.updateLen()
+
+    
 
     
 
