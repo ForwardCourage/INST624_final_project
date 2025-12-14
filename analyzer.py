@@ -3,7 +3,8 @@ from wordcloud import STOPWORDS, WordCloud
 import re
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Set, List
+from typing import Set, List, Pattern
+import dataclasses, inspect
 
 
 @dataclass
@@ -27,12 +28,13 @@ class Analyzer:
     extra_stopwords: Set[str] = field(default_factory=set) # User-defined stopwords (domain-specific high-frequency but meaningless words)
 
     _stopwords: Set[str] = field(init=False, repr=False) # Final stopwords set actually used during token filtering
-    _token_re: re.Pattern = field(init=False, repr=False)
+    _token_re: Pattern[str] = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        extra = {w.lower() for w in self._stopwords} if self.lowercase else set(self.extra_stopwords)
+        print('__post_init__ executed')
+        extra = {w.lower() for w in self.extra_stopwords} if self.lowercase else set(self.extra_stopwords)
         self._stopwords = set(STOPWORDS) | extra
-        self._token_re = re.compile(r"[a-z]+(?:-[a-z]+)*") # regular expression pattern that would filter out unnecessary symbols
+        self._token_re = re.compile(r"[A-Za-z]+(?:-[A-Za-z]+)*") # regular expression pattern that would filter out unnecessary symbols
 
     def _normalize_text(self, sentence: str) -> str:
         # if self.lowercase == True, merge uppercase/lowercase by converting the entire sentence to lowercase.
@@ -75,30 +77,32 @@ class Analyzer:
         tokens = self._tokenize(sentences)
         return Counter(tokens)
 
-if __name__ == '__main__':
-    sentences = [
-        "My Long-haired cat -- sleeps on the sofa.",
-        "Cats chase laser pointers — and then nap.",
-        "A short-haired cat–often sleeps, eats, and plays."
-    ]
+# ---------- Test normalize / tokenize / frequencies ----------
 
-    gen = Analyzer(extra_stopwords={"cat", "cats"})
+sentences = [
+    "My Long-haired cat -- sleeps on the sofa.",
+    "Cats chase laser pointers — and then nap.",
+    "A short-haired cat–often sleeps, eats, and plays."
+]
 
-    # 1) Test normalization
-    print("=== Normalize ===")
-    for s in sentences:
-        print("Original :", s)
-        print("Normalized:", gen._normalize_text(s))
-        print()
+gen = Analyzer(extra_stopwords={"cat", "cats"})
 
-    # 2) Test tokenization
-    print("=== Tokenize ===")
-    tokens = gen._tokenize(sentences)
-    print(tokens)
+# 1) Test normalization
+print("=== Normalize ===")
+for s in sentences:
+    normalized = gen._normalize_text(s)
+    print("Original  :", s)
+    print("Normalized:", normalized)
     print()
 
-    # 3) Test frequencies
-    print("=== Frequencies ===")
-    freq = gen.frequencies(sentences)
-    print(freq)
-    print("Most common:", freq.most_common(10))
+# 2) Test tokenization
+print("=== Tokenize ===")
+tokens = gen._tokenize(sentences)
+print(tokens)
+print()
+
+# 3) Test frequencies
+print("=== Frequencies ===")
+freq = gen.frequencies(sentences)
+print(freq)
+print("Most common:", freq.most_common(10))
