@@ -8,6 +8,7 @@ import dataclasses
 import inspect
 
 
+
 @dataclass
 class Analyzer:
     """
@@ -107,7 +108,20 @@ class Analyzer:
 
         return wc
 
-# ---------- Test normalize / tokenize / frequencies ----------
+    def add_stopwords(self, words: set[str]) -> None:
+        """
+        Add additional stopwords at runtime and update internal stopword set.
+        """
+        if self.lowercase:
+            words = {w.lower() for w in words}
+
+        # Update user-defined stopwords
+        self.extra_stopwords |= words
+
+        # Rebuild internal stopwords
+        self._stopwords = set(STOPWORDS) | self.extra_stopwords
+
+# ---------- Test ----------
 if __name__ == '__main__':
     sentences = [
     "My Long-haired cat -- sleeps on the sofa.",
@@ -117,7 +131,7 @@ if __name__ == '__main__':
 
     gen = Analyzer(extra_stopwords={"cat", "cats"})
 
-    # 1) Test normalization
+    # Test normalization
     print("=== Normalize ===")
     for s in sentences:
         normalized = gen._normalize_text(s)
@@ -125,15 +139,16 @@ if __name__ == '__main__':
         print("Normalized:", normalized)
         print()
 
-    # 2) Test tokenization
+    # Test tokenization
     print("=== Tokenize ===")
     tokens = gen._tokenize(sentences)
     print(tokens)
     print()
 
-    # 3) Test frequencies
+    # Test frequencies
     print("=== Frequencies ===")
     freq = gen.frequencies(sentences)
     print(freq)
     print("Most common:", freq.most_common(10))
+
     gen.show_wordcloud(sentences)
