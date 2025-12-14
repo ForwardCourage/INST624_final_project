@@ -9,6 +9,14 @@ if __name__ == "__main__":
     print("Welcome to Meow Facts Analyzer 🐱")
 
     while True:
+        """
+            get: get facts from Meowfacts API
+            print: print random facts
+            cloud: generate a word cloud from the facts
+            stop: add extra stopwords
+            clean: clean up all facts stored
+            exit: exit the program
+        """
         cmd = input(
             "\nCommands: get | print | cloud | stop | clean | exit\n"
             "Enter command: "
@@ -24,7 +32,6 @@ if __name__ == "__main__":
                 num = input("How many facts do you want to get? ")
                 if num.isdigit():
                     api_reader.getFacts(int(num))
-                    print(f"Fetched {api_reader.returnLen()} facts.")
                 else:
                     print("Please enter a valid number.")
 
