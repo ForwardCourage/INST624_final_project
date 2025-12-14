@@ -4,7 +4,8 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import Set, List, Pattern
-import dataclasses, inspect
+import dataclasses
+import inspect
 
 
 @dataclass
@@ -77,32 +78,62 @@ class Analyzer:
         tokens = self._tokenize(sentences)
         return Counter(tokens)
 
-# ---------- Test normalize / tokenize / frequencies ----------
 
-sentences = [
+    def generate_wordcloud(self, sentences: List[str]) -> WordCloud:
+        # Build word frequencies from the input sentences
+        freq = self.frequencies(sentences)
+
+        # Create and generate the word cloud from frequencies
+        wc = WordCloud(
+            width=self.width,
+            height=self.height,
+            background_color=self.background_color,
+            max_words=self.max_words,
+            collocations=self.collocations
+        ).generate_from_frequencies(freq)
+
+        return wc
+
+
+    def show_wordcloud(self, sentences: List[str]) -> WordCloud:
+        wc = self.generate_wordcloud(sentences)
+
+        # Display in a new matplotlib window (no file saved)
+        plt.figure(figsize=(self.width / 200, self.height / 200))
+        plt.imshow(wc, interpolation="bilinear")
+        plt.axis("off")
+        plt.tight_layout(pad=0)
+        plt.show()
+
+        return wc
+
+# ---------- Test normalize / tokenize / frequencies ----------
+if __name__ == '__main__':
+    sentences = [
     "My Long-haired cat -- sleeps on the sofa.",
     "Cats chase laser pointers — and then nap.",
     "A short-haired cat–often sleeps, eats, and plays."
-]
+    ]
 
-gen = Analyzer(extra_stopwords={"cat", "cats"})
+    gen = Analyzer(extra_stopwords={"cat", "cats"})
 
-# 1) Test normalization
-print("=== Normalize ===")
-for s in sentences:
-    normalized = gen._normalize_text(s)
-    print("Original  :", s)
-    print("Normalized:", normalized)
+    # 1) Test normalization
+    print("=== Normalize ===")
+    for s in sentences:
+        normalized = gen._normalize_text(s)
+        print("Original  :", s)
+        print("Normalized:", normalized)
+        print()
+
+    # 2) Test tokenization
+    print("=== Tokenize ===")
+    tokens = gen._tokenize(sentences)
+    print(tokens)
     print()
 
-# 2) Test tokenization
-print("=== Tokenize ===")
-tokens = gen._tokenize(sentences)
-print(tokens)
-print()
-
-# 3) Test frequencies
-print("=== Frequencies ===")
-freq = gen.frequencies(sentences)
-print(freq)
-print("Most common:", freq.most_common(10))
+    # 3) Test frequencies
+    print("=== Frequencies ===")
+    freq = gen.frequencies(sentences)
+    print(freq)
+    print("Most common:", freq.most_common(10))
+    gen.show_wordcloud(sentences)
