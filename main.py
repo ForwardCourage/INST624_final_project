@@ -15,10 +15,11 @@ if __name__ == "__main__":
             cloud: generate a word cloud from the facts
             stop: add extra stopwords
             clean: clean up all facts stored
+            stats: show the information stats of the facts
             exit: exit the program
         """
         cmd = input(
-            "\nCommands: get | print | cloud | stop | clean | exit\n"
+            "\nCommands: get | print | cloud | stop | clean | stats | exit\n"
             "Enter command: "
         ).strip().lower()
 
@@ -69,5 +70,19 @@ if __name__ == "__main__":
                 wordcloud_gen.add_stopwords(stopwords)
 
                 print(f"Added {len(stopwords)} stopwords.")
+
+            case "stats":
+                if api_reader.returnLen() == 0:
+                    print("No facts available. Fetch facts first.")
+                    continue
+
+                df = wordcloud_gen.sentence_stats_df(api_reader.returnFacts())
+
+                print("\nSentence-level statistics:")
+                print(df)
+
+                print("\nSummary statistics:")
+                print(df.describe())
+            
             case _:
                 print("Unknown command. Please try again.")
