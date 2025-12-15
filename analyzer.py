@@ -4,8 +4,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass, field
 from typing import Set, List, Pattern
-import dataclasses
-import inspect
+import pandas as pd
 
 
 
@@ -33,7 +32,7 @@ class Analyzer:
     _token_re: Pattern[str] = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        print('__post_init__ executed')
+        
         extra = {w.lower() for w in self.extra_stopwords} if self.lowercase else set(self.extra_stopwords)
         self._stopwords = set(STOPWORDS) | extra
         self._token_re = re.compile(r"[A-Za-z]+(?:-[A-Za-z]+)*") # regular expression pattern that would filter out unnecessary symbols
@@ -121,34 +120,69 @@ class Analyzer:
         # Rebuild internal stopwords
         self._stopwords = set(STOPWORDS) | self.extra_stopwords
 
+    def sentence_stats_df(self, sentences: List[str]):
+        """
+        Return a pandas DataFrame with sentence-level statistics.
+        """
+        df = pd.DataFrame({"sentence": sentences})
+
+        # character count per sentence
+        df["char_count"] = df["sentence"].str.len()
+
+        # word count per sentence (simple whitespace split)
+        df["word_count"] = df["sentence"].str.split().str.len()
+
+        # keyword count (after normalization + stopword removal)
+        df["keyword_count"] = [
+            len(self._tokenize([s])) for s in sentences
+        ]
+
+        # ratio of meaningful words
+        df["keyword_ratio"] = df["keyword_count"] / df["word_count"]
+
+        return df
+
 # ---------- Test ----------
 if __name__ == '__main__':
-    sentences = [
-    "My Long-haired cat -- sleeps on the sofa.",
-    "Cats chase laser pointers — and then nap.",
-    "A short-haired cat–often sleeps, eats, and plays."
+    # sentences = [
+    # "My Long-haired cat -- sleeps on the sofa.",
+    # "Cats chase laser pointers — and then nap.",
+    # "A short-haired cat–often sleeps, eats, and plays."
+    # ]
+
+    # gen = Analyzer(extra_stopwords={"cat", "cats"})
+
+    # # Test normalization
+    # print("=== Normalize ===")
+    # for s in sentences:
+    #     normalized = gen._normalize_text(s)
+    #     print("Original  :", s)
+    #     print("Normalized:", normalized)
+    #     print()
+
+    # # Test tokenization
+    # print("=== Tokenize ===")
+    # tokens = gen._tokenize(sentences)
+    # print(tokens)
+    # print()
+
+    # # Test frequencies
+    # print("=== Frequencies ===")
+    # freq = gen.frequencies(sentences)
+    # print(freq)
+    # print("Most common:", freq.most_common(10))
+
+    # gen.show_wordcloud(sentences)
+
+    facts = [
+        "Cats sleep most of the day.",
+        "Some cats enjoy chasing laser pointers.",
+        "A cat can jump up to six times its length."
     ]
 
     gen = Analyzer(extra_stopwords={"cat", "cats"})
 
-    # Test normalization
-    print("=== Normalize ===")
-    for s in sentences:
-        normalized = gen._normalize_text(s)
-        print("Original  :", s)
-        print("Normalized:", normalized)
-        print()
-
-    # Test tokenization
-    print("=== Tokenize ===")
-    tokens = gen._tokenize(sentences)
-    print(tokens)
-    print()
-
-    # Test frequencies
-    print("=== Frequencies ===")
-    freq = gen.frequencies(sentences)
-    print(freq)
-    print("Most common:", freq.most_common(10))
-
-    gen.show_wordcloud(sentences)
+    df = gen.sentence_stats_df(facts)
+    print(df)
+    print("\nSummary:")
+    print(df.describe())
