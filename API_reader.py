@@ -1,7 +1,7 @@
 import requests
 import json
 import random
-api_url = 'https://meowfacts.herokuapp.com/' # Meowfacts API url
+api_url = 'https://meowfacts.herokuapp.com' # Meowfacts API url
 
 class MeowApiCaller:
     """

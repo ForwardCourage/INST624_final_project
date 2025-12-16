@@ -1,5 +1,5 @@
-from API_reader import *
-from analyzer import *
+from API_reader import MeowApiCaller
+from analyzer import Analyzer
 
 
 if __name__ == "__main__":

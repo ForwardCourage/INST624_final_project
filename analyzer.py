@@ -144,35 +144,7 @@ class Analyzer:
 
 # ---------- Test ----------
 if __name__ == '__main__':
-    # sentences = [
-    # "My Long-haired cat -- sleeps on the sofa.",
-    # "Cats chase laser pointers — and then nap.",
-    # "A short-haired cat–often sleeps, eats, and plays."
-    # ]
-
-    # gen = Analyzer(extra_stopwords={"cat", "cats"})
-
-    # # Test normalization
-    # print("=== Normalize ===")
-    # for s in sentences:
-    #     normalized = gen._normalize_text(s)
-    #     print("Original  :", s)
-    #     print("Normalized:", normalized)
-    #     print()
-
-    # # Test tokenization
-    # print("=== Tokenize ===")
-    # tokens = gen._tokenize(sentences)
-    # print(tokens)
-    # print()
-
-    # # Test frequencies
-    # print("=== Frequencies ===")
-    # freq = gen.frequencies(sentences)
-    # print(freq)
-    # print("Most common:", freq.most_common(10))
-
-    # gen.show_wordcloud(sentences)
+    
 
     facts = [
         "Cats sleep most of the day.",
